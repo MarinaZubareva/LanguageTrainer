@@ -1,0 +1,1 @@
+java -Dfile.encoding=UTF-8 Latv2RusUI
