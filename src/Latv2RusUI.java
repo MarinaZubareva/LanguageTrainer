@@ -5,13 +5,16 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static javafx.geometry.Pos.CENTER;
 
 public class Latv2RusUI extends Application {
     static LatvianLanguageTrainer latvianLanguageTrainer;
 
     Label labelToTranslate = new Label("");
-    Button[] buttonTranslationVariants = new Button[LatvianLanguageTrainer.numberOfTranslations];
+    List<Button> buttonTranslationVariants = new ArrayList<>();
     Button buttonNext = new Button();
 
     public void fillControlsWithText() {
@@ -19,8 +22,8 @@ public class Latv2RusUI extends Application {
         String wordForTranslate = latvianLanguageTrainer.getTheWord();
         greyAllButton();
         labelToTranslate.setText(wordForTranslate);
-        for (int i = 0; i < LatvianLanguageTrainer.numberOfTranslations; i++) {
-            buttonTranslationVariants[i].setText(latvianLanguageTrainer.getTranslation(i));
+        for (Button button : buttonTranslationVariants) {
+            button.setText(latvianLanguageTrainer.getListOfTranslations().get(buttonTranslationVariants.indexOf(button)));
         }
     }
 
@@ -47,43 +50,38 @@ public class Latv2RusUI extends Application {
         vbox.getChildren().addAll(buttonTranslationVariants);
         vbox.getChildren().add(labelBlank2);
         vbox.getChildren().add(buttonNext);
-
         vbox.setAlignment(CENTER);
-
         Scene scene = new Scene(vbox, 100, 200);
-
-
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private void setActionOnButtons() {
-        for (int i = 0; i < LatvianLanguageTrainer.numberOfTranslations; i++) {
-            final int j = i;
-            buttonTranslationVariants[i].setOnAction(value -> {
+        for (Button button : buttonTranslationVariants) {
+            button.setOnAction(value -> {
                 greyAllButton();
-                changeButtonColorBasedOnRightWrongAnswer(buttonTranslationVariants[j],
-                        latvianLanguageTrainer.getTranslation(j));
+                changeButtonColorBasedOnRightWrongAnswer(button);
             });
         }
     }
 
     private void createAllButtonInstances() {
         for (int i = 0; i < LatvianLanguageTrainer.numberOfTranslations; i++) {
-            buttonTranslationVariants[i] = new Button();
-            buttonTranslationVariants[i].setPrefWidth(100);
+            Button button = new Button();
+            button.setPrefWidth(100);
+            buttonTranslationVariants.add(button);
         }
     }
 
     private void greyAllButton() {
-        for (int i = 0; i < LatvianLanguageTrainer.numberOfTranslations; i++) {
-            buttonTranslationVariants[i].setStyle("-fx-background-color: none;");
+        for (Button button : buttonTranslationVariants) {
+            button.setStyle("-fx-background-color: none;");
         }
-
     }
 
-    private void changeButtonColorBasedOnRightWrongAnswer(Button choiceButton, String translation) {
-        if (latvianLanguageTrainer.getTrueTranslation().equals(translation)) {
+    private void changeButtonColorBasedOnRightWrongAnswer(Button choiceButton) {
+       // if (latvianLanguageTrainer.getTrueTranslation().equals(choiceButton.getText())) {
+        if (latvianLanguageTrainer.translationIsRight(choiceButton.getText())) {
             choiceButton.setStyle("-fx-background-color: #00ff00;");
         } else {
             choiceButton.setStyle("-fx-background-color: #ff0000;");
@@ -91,7 +89,7 @@ public class Latv2RusUI extends Application {
     }
 
     public static void main(String[] args) {
-        latvianLanguageTrainer = new LatvianLanguageTrainer(LatvianLanguageTrainer.numberOfTranslations);
+        latvianLanguageTrainer = new LatvianLanguageTrainer();
         latvianLanguageTrainer.loadVocabularyFromClassLoader();
         Application.launch(args);
     }
