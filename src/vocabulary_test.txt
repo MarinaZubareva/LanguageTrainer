@@ -1,0 +1,5 @@
+﻿окно;logs
+зеркало;spogulis
+кровать;gulta
+бабушка;vecmāmiņa
+покупатель;pircējs

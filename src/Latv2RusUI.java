@@ -16,14 +16,22 @@ public class Latv2RusUI extends Application {
     Label labelToTranslate = new Label("");
     List<Button> buttonTranslationVariants = new ArrayList<>();
     Button buttonNext = new Button();
+    VBox vbox;
+
 
     public void fillControlsWithText() {
         latvianLanguageTrainer.challenge();
         String wordForTranslate = latvianLanguageTrainer.getTheWord();
-        greyAllButton();
-        labelToTranslate.setText(wordForTranslate);
-        for (Button button : buttonTranslationVariants) {
-            button.setText(latvianLanguageTrainer.getListOfTranslations().get(buttonTranslationVariants.indexOf(button)));
+        if (wordForTranslate.equals("")) {
+            vbox.getChildren().removeAll(buttonTranslationVariants);
+            vbox.getChildren().remove(buttonNext);
+            labelToTranslate.setText("Congratulations!");
+        } else {
+            greyAllButton();
+            labelToTranslate.setText(wordForTranslate);
+            for (Button button : buttonTranslationVariants) {
+                button.setText(latvianLanguageTrainer.getListOfTranslations().get(buttonTranslationVariants.indexOf(button)));
+            }
         }
     }
 
@@ -46,7 +54,14 @@ public class Latv2RusUI extends Application {
             fillControlsWithText();
         });
 
-        VBox vbox = new VBox(labelToTranslate, labelBlank1);
+        /*
+        TODO: надо сделать vbox и scene атрибутами класса.
+        Тогда ты сможешь изменять их в других методах.
+        Например удалить все кнопки командой
+        vbox.getChildren().removeAll(buttonTranslationVariants);
+         */
+
+        vbox = new VBox(labelToTranslate, labelBlank1);
         vbox.getChildren().addAll(buttonTranslationVariants);
         vbox.getChildren().add(labelBlank2);
         vbox.getChildren().add(buttonNext);
@@ -80,7 +95,7 @@ public class Latv2RusUI extends Application {
     }
 
     private void changeButtonColorBasedOnRightWrongAnswer(Button choiceButton) {
-       // if (latvianLanguageTrainer.getTrueTranslation().equals(choiceButton.getText())) {
+        // if (latvianLanguageTrainer.getTrueTranslation().equals(choiceButton.getText())) {
         if (latvianLanguageTrainer.translationIsRight(choiceButton.getText())) {
             choiceButton.setStyle("-fx-background-color: #00ff00;");
         } else {
@@ -89,7 +104,7 @@ public class Latv2RusUI extends Application {
     }
 
     public static void main(String[] args) {
-        latvianLanguageTrainer = new LatvianLanguageTrainer();
+        latvianLanguageTrainer = new LatvianLanguageTrainer(4);
         latvianLanguageTrainer.loadVocabularyFromClassLoader();
         Application.launch(args);
     }

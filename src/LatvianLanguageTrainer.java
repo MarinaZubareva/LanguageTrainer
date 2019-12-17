@@ -12,11 +12,12 @@ public class LatvianLanguageTrainer {
     private String theWord;
     private List<String> listOfTranslations;
     private String trueTranslation;
-    public final static int numberOfTranslations = 4;
+    public static int numberOfTranslations;
     public boolean chooseFromQueueOfWrongAnswers = false;
 
 
-    public LatvianLanguageTrainer() {
+    public LatvianLanguageTrainer(int number) {
+        numberOfTranslations = number;
         latv2Rus = new HashMap<>();
         listOfTranslations = new ArrayList<>();
         queueOfWrongAnswers = new LinkedList<>();
@@ -62,22 +63,31 @@ public class LatvianLanguageTrainer {
     }
 
     public void challenge() {
-        Random generator = new Random();
-        Object randomKey = latv2RusKeys.get(generator.nextInt(latv2RusKeys.size()));
+        System.out.println();
+        System.out.println("queueOfWrongAnswers.size() " + queueOfWrongAnswers.size());
+        System.out.println("latv2RusKeys.size() " + latv2RusKeys.size());
 
-        if (queueOfWrongAnswers.size() != 0 && chooseFromQueueOfWrongAnswers) {
+        if (queueOfWrongAnswers.size() == 0 && latv2RusKeys.size() == 0) {
+            theWord = "";
+            return;
+        }
+        Random generatorKeys = new Random();
+        if (queueOfWrongAnswers.size() != 0 && (chooseFromQueueOfWrongAnswers || latv2RusKeys.size() == 0)) {
             chooseFromQueueOfWrongAnswers = false;
             theWord = queueOfWrongAnswers.poll();
+            System.out.println("word from queue");
         } else {
-            chooseFromQueueOfWrongAnswers = true;
-            theWord = randomKey.toString();
+            theWord = latv2RusKeys.get(generatorKeys.nextInt(latv2RusKeys.size())).toString();
+            System.out.println("word from list");
+            if (queueOfWrongAnswers.size() > 0)
+                chooseFromQueueOfWrongAnswers = true;
         }
         trueTranslation = latv2Rus.get(theWord);
         // create array for random translations
         Set<String> options = new HashSet<>();
         options.add(trueTranslation);
         while (options.size() < numberOfTranslations) {
-            options.add(latv2RusValues.get(generator.nextInt(latv2RusValues.size())).toString());
+            options.add(latv2RusValues.get(generatorKeys.nextInt(latv2RusValues.size())).toString());
         }
         listOfTranslations = new ArrayList<>(options);
     }
