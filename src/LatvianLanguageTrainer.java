@@ -6,23 +6,30 @@ import java.util.stream.Stream;
 
 public class LatvianLanguageTrainer {
     private Map<String, String> latv2Rus;
-    private Object[] keys;
-    private Object[] values;
+    private List<String> latv2RusKeys; // we will delete words (which user knows) from here
+    private List<String> latv2RusValues; // we will pick translation variants from here
+    private Queue<String> queueOfWrongAnswers;
     private String theWord;
-    private String[] arrayOfTranslations;
+    private List<String> listOfTranslations;
     private String trueTranslation;
-    public final static int numberOfTranslations = 4;
+    public static int numberOfTranslations;
+    public boolean chooseFromQueueOfWrongAnswers = false;
 
 
-    public LatvianLanguageTrainer(int numberOfTranslations) {
+    public LatvianLanguageTrainer(int number) {
+        numberOfTranslations = number;
         latv2Rus = new HashMap<>();
-        arrayOfTranslations = new String[numberOfTranslations];
+        listOfTranslations = new ArrayList<>();
+        queueOfWrongAnswers = new LinkedList<>();
+        latv2RusKeys = new LinkedList();
+        latv2RusValues = new LinkedList();
     }
+
 
     protected void loadVocabularyFromClassLoader() {
         // check if file exists and available for reading
         // stream through the file, fill the Map
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = LatvianLanguageTrainer.class.getClassLoader();
         InputStream vocabularyStr = loader.getResourceAsStream("vocabulary.txt");
         if (vocabularyStr == null)
             System.out.println("File with vocabulary not found");
@@ -31,8 +38,8 @@ public class LatvianLanguageTrainer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        keys = latv2Rus.keySet().toArray();
-        values = latv2Rus.values().toArray();
+        latv2RusKeys = new LinkedList<>(latv2Rus.keySet());
+        latv2RusValues = new LinkedList<>(latv2Rus.values());
     }
 
     private void fillLat2RusMap(String line) {
@@ -46,32 +53,53 @@ public class LatvianLanguageTrainer {
         return theWord;
     }
 
-    public String[] getArrayOfTranslations() {
-        return arrayOfTranslations;
+    public List<String> getListOfTranslations() {
+        return listOfTranslations;
     }
+
 
     public String getTrueTranslation() {
         return trueTranslation;
     }
 
     public void challenge() {
-        Random generator = new Random();
-        Object randomKey = keys[generator.nextInt(keys.length)];
-        theWord = randomKey.toString();
-        trueTranslation = latv2Rus.get(randomKey.toString());
+        System.out.println();
+        System.out.println("queueOfWrongAnswers.size() " + queueOfWrongAnswers.size());
+        System.out.println("latv2RusKeys.size() " + latv2RusKeys.size());
 
+        if (queueOfWrongAnswers.size() == 0 && latv2RusKeys.size() == 0) {
+            theWord = "";
+            return;
+        }
+        Random generatorKeys = new Random();
+        if (queueOfWrongAnswers.size() != 0 && (chooseFromQueueOfWrongAnswers || latv2RusKeys.size() == 0)) {
+            chooseFromQueueOfWrongAnswers = false;
+            theWord = queueOfWrongAnswers.poll();
+            System.out.println("word from queue");
+        } else {
+            theWord = latv2RusKeys.get(generatorKeys.nextInt(latv2RusKeys.size())).toString();
+            System.out.println("word from list");
+            if (queueOfWrongAnswers.size() > 0)
+                chooseFromQueueOfWrongAnswers = true;
+        }
+        trueTranslation = latv2Rus.get(theWord);
         // create array for random translations
         Set<String> options = new HashSet<>();
         options.add(trueTranslation);
         while (options.size() < numberOfTranslations) {
-            options.add(values[generator.nextInt(values.length)].toString());
+            options.add(latv2RusValues.get(generatorKeys.nextInt(latv2RusValues.size())).toString());
         }
-        arrayOfTranslations = options.toArray(new String[options.size()]);
-
-
+        listOfTranslations = new ArrayList<>(options);
     }
 
-    public String getTranslation(int i) {
-        return arrayOfTranslations[i];
+    public boolean translationIsRight(String usersChoiceOfTranslation) {
+        if (this.getTrueTranslation().equals(usersChoiceOfTranslation)) {
+            // delete word from structures
+            latv2RusKeys.remove(this.theWord);
+            return true;
+        }
+        queueOfWrongAnswers.add(this.theWord);
+        return false;
     }
+
 }
