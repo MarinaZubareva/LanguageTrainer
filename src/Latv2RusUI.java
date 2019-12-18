@@ -54,13 +54,6 @@ public class Latv2RusUI extends Application {
             fillControlsWithText();
         });
 
-        /*
-        TODO: надо сделать vbox и scene атрибутами класса.
-        Тогда ты сможешь изменять их в других методах.
-        Например удалить все кнопки командой
-        vbox.getChildren().removeAll(buttonTranslationVariants);
-         */
-
         vbox = new VBox(labelToTranslate, labelBlank1);
         vbox.getChildren().addAll(buttonTranslationVariants);
         vbox.getChildren().add(labelBlank2);

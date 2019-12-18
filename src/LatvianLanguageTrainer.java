@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.logging.*;
 import java.util.stream.Stream;
 
 public class LatvianLanguageTrainer {
@@ -16,13 +18,32 @@ public class LatvianLanguageTrainer {
     public boolean chooseFromQueueOfWrongAnswers = false;
 
 
+    private static final Logger LOGGER = Logger.getLogger(LatvianLanguageTrainer.class.getName());
+
+
     public LatvianLanguageTrainer(int number) {
+        LOGGER.setLevel(Level.INFO);
         numberOfTranslations = number;
         latv2Rus = new HashMap<>();
         listOfTranslations = new ArrayList<>();
         queueOfWrongAnswers = new LinkedList<>();
         latv2RusKeys = new LinkedList();
         latv2RusValues = new LinkedList();
+        Handler consoleHandler = new ConsoleHandler();
+        try {
+            Handler fileHandler = new FileHandler("./latvianLanguageTrainer.log");
+            //Assigning handlers to LOGGER object
+            LOGGER.addHandler(consoleHandler);
+            LOGGER.addHandler(fileHandler);
+
+            //Setting levels to handlers and LOGGER
+            consoleHandler.setLevel(Level.ALL);
+            fileHandler.setLevel(Level.ALL);
+            LOGGER.setLevel(Level.ALL);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -31,8 +52,9 @@ public class LatvianLanguageTrainer {
         // stream through the file, fill the Map
         ClassLoader loader = LatvianLanguageTrainer.class.getClassLoader();
         InputStream vocabularyStr = loader.getResourceAsStream("vocabulary.txt");
-        if (vocabularyStr == null)
-            System.out.println("File with vocabulary not found");
+        if (vocabularyStr == null) {
+            LOGGER.info("File with vocabulary not found");
+        }
         try (Stream<String> stream = new BufferedReader(new InputStreamReader(vocabularyStr)).lines()) {
             stream.forEach(line -> fillLat2RusMap(line));
         } catch (Exception e) {
