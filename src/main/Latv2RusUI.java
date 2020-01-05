@@ -98,7 +98,7 @@ public class Latv2RusUI extends Application {
 
     public static void main(String[] args) {
         latvianLanguageTrainer = new LatvianLanguageTrainer(4);
-        latvianLanguageTrainer.loadVocabularyFromClassLoader();
+        latvianLanguageTrainer.loadVocabularyFromClassLoader("vocabulary.txt");
         Application.launch(args);
     }
 }
