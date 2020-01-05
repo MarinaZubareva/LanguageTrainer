@@ -7,6 +7,8 @@ import java.util.logging.*;
 import java.util.stream.Stream;
 
 public class LatvianLanguageTrainer {
+    public static int numberOfTranslations;
+
     private Map<String, String> latv2Rus;
     private List<String> latv2RusKeys; // we will delete words (which user knows) from here
     private List<String> latv2RusValues; // we will pick translation variants from here
@@ -14,8 +16,7 @@ public class LatvianLanguageTrainer {
     private String theWord;
     private List<String> listOfTranslations;
     private String trueTranslation;
-    public static int numberOfTranslations;
-    public boolean chooseFromQueueOfWrongAnswers = false;
+    private boolean chooseFromQueueOfWrongAnswers = false;
 
 
     private static final Logger LOGGER = Logger.getLogger(LatvianLanguageTrainer.class.getName());
@@ -47,11 +48,11 @@ public class LatvianLanguageTrainer {
     }
 
 
-    protected void loadVocabularyFromClassLoader() {
+    protected void loadVocabularyFromClassLoader(String vocabularyTxtString) {
         // check if file exists and available for reading
         // stream through the file, fill the Map
         ClassLoader loader = LatvianLanguageTrainer.class.getClassLoader();
-        InputStream vocabularyStr = loader.getResourceAsStream("vocabulary.txt");
+        InputStream vocabularyStr = loader.getResourceAsStream(vocabularyTxtString);
         if (vocabularyStr == null) {
             LOGGER.info("File with vocabulary not found");
         }
@@ -124,4 +125,11 @@ public class LatvianLanguageTrainer {
         return false;
     }
 
+    public List<String> getLatv2RusKeys() {
+        return latv2RusKeys;
+    }
+
+    public List<String> getLatv2RusValues() {
+        return latv2RusValues;
+    }
 }
